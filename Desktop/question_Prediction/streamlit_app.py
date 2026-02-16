@@ -790,7 +790,7 @@ with st.sidebar:
             filtered_df = filtered_df[filtered_df['chapter'] == sel_chapter]
     
     st.divider()
-    st.caption("v2.0.2 | LNCT AIML Dept")
+    st.caption("v2.0.2 |")
 
 # --------------------------------------------------
 # MAIN UI
