@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>JEE Rank Booster</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body class="bg-slate-950 text-white">
+
+<div class="flex h-screen">
+
+<!-- Sidebar -->
+<div class="w-60 bg-slate-900 p-4 hidden md:block">
+<h2 class="text-xl font-bold mb-6">Rank Booster</h2>
+
+<button onclick="showSection('dashboard')" class="navBtn">Dashboard</button>
+<button onclick="showSection('predictor')" class="navBtn">Predictor</button>
+<button onclick="showSection('rank')" class="navBtn">Rank Booster</button>
+</div>
+
+<!-- Content -->
+<div class="flex-1 p-6 overflow-y-auto">
+
+<button id="simulateBtn"
+class="bg-blue-500 px-4 py-2 rounded mb-4">
+Simulate Prediction
+</button>
+
+<!-- Dashboard -->
+<section id="dashboard">
+<h2 class="text-xl mb-3">Analytics</h2>
+<canvas id="trendChart"></canvas>
+</section>
+
+<!-- Predictor -->
+<section id="predictor" class="hidden">
+<h2 class="text-xl mb-3">Predictions</h2>
+
+<input id="searchInput"
+placeholder="Search..."
+class="p-2 text-black mb-3 w-full">
+
+<table class="w-full text-sm">
+<thead>
+<tr>
+<th>Subject</th>
+<th>Topic</th>
+<th>Probability</th>
+</tr>
+</thead>
+<tbody id="predictionTable"></tbody>
+</table>
+</section>
+
+<!-- Rank Booster -->
+<section id="rank" class="hidden">
+<h2 class="text-xl mb-3">Recommended Chapters</h2>
+<div id="rankCards" class="grid md:grid-cols-3 gap-4"></div>
+</section>
+
+</div>
+</div>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JEE Main Predictive Analytics & Rank Booster</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body { background:#020617; color:#e5e7eb; }
+
+    .card {
+      background:#020617;
+      border:1px solid #1f2937;
+      border-radius:12px;
+      padding:16px;
+    }
+
+    .nav-btn {
+      display:block;
+      width:100%;
+      text-align:left;
+      padding:10px;
+      border-radius:8px;
+    }
+
+    .nav-btn:hover { background:#0f172a; }
+
+    .loader {
+      border:3px solid #1f2937;
+      border-top:3px solid #22d3ee;
+      border-radius:50%;
+      width:20px;
+      height:20px;
+      animation:spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+
+<body class="h-screen overflow-hidden">
+
+<div class="flex h-full">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-slate-900 border-r border-slate-800 hidden md:flex flex-col">
+    <div class="p-5 text-xl font-bold text-cyan-400">Rank Booster</div>
+
+    <nav class="px-3 space-y-1">
+      <button class="nav-btn" onclick="showSection('dashboard')">Dashboard</button>
+      <button class="nav-btn" onclick="showSection('predictor')">Predictor</button>
+      <button class="nav-btn" onclick="showSection('rank')">Rank Booster</button>
+    </nav>
+  </aside>
+
+  <!-- Main Area -->
+  <main class="flex-1 overflow-y-auto p-6 space-y-6">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+      <h1 class="text-2xl font-semibold">JEE Analytics Dashboard</h1>
+      <button id="simulateBtn" class="bg-cyan-400 text-black px-4 py-2 rounded font-semibold flex items-center gap-2">
+        Run Prediction
+      </button>
+    </div>
+
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="space-y-6">
+
+      <!-- Stats -->
+      <div class="grid md:grid-cols-4 gap-4">
+        <div class="card"><p>Total Questions</p><h2 id="statTotal" class="text-2xl font-bold">--</h2></div>
+        <div class="card"><p>Top Subject</p><h2 id="statSubject" class="text-xl font-bold">--</h2></div>
+        <div class="card"><p>Top Chapter</p><h2 id="statChapter" class="text-xl font-bold">--</h2></div>
+        <div class="card"><p>Prediction Confidence</p><h2 class="text-xl font-bold">87%</h2></div>
+      </div>
+
+      <!-- Subject Chart -->
+      <div class="card">
+        <h3 class="mb-3">Questions Distribution by Subject</h3>
+        <div style="height:350px">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Predictor Section -->
+    <section id="predictor" class="hidden space-y-4">
+      <h2 class="text-xl">Predicted Questions</h2>
+
+      <input id="searchInput" placeholder="Search topic..."
+             class="p-2 rounded bg-slate-900 border border-slate-700 w-full">
+
+      <div class="overflow-x-auto card">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-800">
+            <tr>
+              <th class="p-2">Subject</th>
+              <th class="p-2">Topic</th>
+              <th class="p-2">Probability</th>
+            </tr>
+          </thead>
+          <tbody id="predictionTable"></tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="flex justify-between">
+        <button onclick="prevPage()" class="px-3 py-1 bg-slate-800 rounded">Prev</button>
+        <span id="pageInfo"></span>
+        <button onclick="nextPage()" class="px-3 py-1 bg-slate-800 rounded">Next</button>
+      </div>
+    </section>
+
+    <!-- Rank Booster Section -->
+    <section id="rank" class="hidden grid md:grid-cols-3 gap-4"></section>
+
+  </main>
+</div>
+
+<script>
+/* -------- Section Switch -------- */
+function showSection(id){
+  document.querySelectorAll('section').forEach(s=>s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+/* -------- Prediction Button -------- */
+document.getElementById('simulateBtn').onclick = async () => {
+  const btn = document.getElementById('simulateBtn');
+
+  btn.innerHTML = '<div class="loader"></div> Running Models...';
+  btn.disabled = true;
+
+  await fetch('/api/predict');
+
+  btn.innerText = 'Updated';
+  btn.disabled = false;
+
+  loadPredictions();
+  loadChart();
+};
+
+/* -------- Chart Loader -------- */
+let chartInstance;
+
+async function loadChart(){
+  const res = await fetch('/api/chart-data');
+  const data = await res.json();
+
+  const labels = Object.keys(data);
+  const values = Object.values(data);
+
+  document.getElementById('statTotal').innerText = values.reduce((a,b)=>a+b,0);
+  document.getElementById('statSubject').innerText = labels[0] || '--';
+  document.getElementById('statChapter').innerText = 'Top Weighted Chapter';
+
+  if(chartInstance) chartInstance.destroy();
+
+  chartInstance = new Chart(document.getElementById('trendChart'),{
+    type:'bar',
+    data:{
+      labels:labels,
+      datasets:[{label:'Questions', data:values}]
+    },
+    options:{responsive:true, maintainAspectRatio:false}
+  });
+}
+
+/* -------- Predictions Table -------- */
+let tableData=[];
+let currentPage=1;
+const rowsPerPage=20;
+
+async function loadPredictions(){
+  const res = await fetch('/api/predictions');
+  tableData = await res.json();
+  currentPage = 1;
+  renderTable();
+}
+
+function renderTable(){
+  const start=(currentPage-1)*rowsPerPage;
+  const rows=tableData.slice(start,start+rowsPerPage);
+
+  const tbody=document.getElementById('predictionTable');
+  tbody.innerHTML='';
+
+  rows.forEach(r=>{
+    tbody.innerHTML+=`
+      <tr class="border-b border-gray-700">
+        <td class="p-2">${r.Subject||''}</td>
+        <td class="p-2">${r.Topic||''}</td>
+        <td class="p-2">${r.Predicted_Probability||''}</td>
+      </tr>`;
+  });
+
+  document.getElementById('pageInfo').innerText=
+    `Page ${currentPage} / ${Math.max(1,Math.ceil(tableData.length/rowsPerPage))}`;
+}
+
+function nextPage(){
+  if(currentPage < Math.ceil(tableData.length/rowsPerPage)){
+    currentPage++;
+    renderTable();
+  }
+}
+
+function prevPage(){
+  if(currentPage>1){
+    currentPage--;
+    renderTable();
+  }
+}
+
+/* -------- Search Filter -------- */
+document.getElementById('searchInput').oninput = function(){
+  const val=this.value.toLowerCase();
+  tableData = tableData.filter(r =>
+    (r.Topic||'').toLowerCase().includes(val)
+  );
+  currentPage=1;
+  renderTable();
+};
+
+/* -------- Rank Booster Cards -------- */
+const chapters=[
+  ['Electrostatics',90],
+  ['Calculus',85],
+  ['Organic Chemistry',80]
+];
+
+const rankContainer=document.getElementById('rank');
+
+chapters.forEach(([name,val])=>{
+  rankContainer.innerHTML+=`
+  <div class="card">
+    <h3 class="font-semibold mb-2">${name}</h3>
+    <div class="bg-gray-700 h-3 rounded">
+      <div class="bg-emerald-500 h-3 rounded" style="width:${val}%"></div>
+    </div>
+    <p class="text-sm mt-2 text-gray-400">High Yield Probability</p>
+  </div>`;
+});
+
+/* -------- Init -------- */
+window.onload=()=>{
+  loadChart();
+  loadPredictions();
+};
+</script>
+
+</body>
+</html>

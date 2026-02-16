@@ -1,0 +1,12 @@
+.navBtn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 6px;
+}
+
+.navBtn:hover {
+    background: #1f2937;
+}
