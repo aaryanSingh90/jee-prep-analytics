@@ -161,7 +161,16 @@ Aaryan Singh
 AI & Data Science Enthusiast
 
 ---
+## 📷 Application Screenshots
 
-⭐ If you find this useful, give the repo a star!
+### Dashboard
+![Dashboard](screenshots/dashboard.png)
 
-```
+### Similar Question Finder
+![Recommender](screenshots/recommender.png)
+
+### Trend Analysis
+![Trend](screenshots/trend.png)
+
+### Rank Booster
+![Rank Booster](screenshots/rank_booster.png)
