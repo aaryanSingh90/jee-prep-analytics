@@ -165,14 +165,3 @@ AI & Data Science Enthusiast
 ⭐ If you find this useful, give the repo a star!
 
 ```
-
----
-
-## ✅ Next Best Step
-After README, next professional steps:
-
-1. Add screenshots
-2. Deploy Streamlit online
-3. Add demo video
-4. Add resume entry
-
