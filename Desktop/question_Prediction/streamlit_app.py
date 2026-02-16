@@ -865,4 +865,4 @@ with tab_trends:
     st.line_chart(trend_df)
 
 st.divider()
-st.markdown("<center style='color:gray'>JEE Prediction System - LNCT AIML Department</center>", unsafe_allow_html=True)
+st.markdown("<center style='color:gray'>JEE Prediction System</center>", unsafe_allow_html=True)
