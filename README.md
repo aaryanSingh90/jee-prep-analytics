@@ -164,13 +164,13 @@ AI & Data Science Enthusiast
 ## 📷 Application Screenshots
 
 ### Dashboard
-![Dashboard](screenshots/dashboard.png)
+![Dashboard](Desktop/question_Prediction/screenshots/dashboard.png)
 
 ### Similar Question Finder
-![Recommender](screenshots/recommender.png)
+![Recommender](Desktop/question_Prediction/screenshots/recommender.png)
 
 ### Trend Analysis
-![Trend](screenshots/trend.png)
+![Trend](Desktop/question_Prediction/screenshots/trend.png)
 
 ### Rank Booster
-![Rank Booster](screenshots/rank_booster.png)
+![Rank Booster](Desktop/question_Prediction/screenshots/rank_booster.png)
